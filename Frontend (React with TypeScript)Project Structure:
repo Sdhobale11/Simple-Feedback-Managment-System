@@ -1,0 +1,36 @@
+Project Structure:
+src
+App.tsx
+FeedbackForm.tsx
+FeedbackList.tsx
+api.ts
+index.tsx
+package.json
+tsconfig.json
+
+App.tsx:
+import React from 'eact';
+import FeedbackForm from './FeedbackForm';
+import FeedbackList from './FeedbackList';
+
+function App() {
+  return (
+    <div>
+      <FeedbackForm />
+      <FeedbackList />
+    </div>
+  );
+}
+
+export default App;
+
+FeedbackForm.tsx:
+import React, { useState } from 'eact';
+import axios from 'axios';
+
+interface FeedbackFormProps {
+  onSubmit: (feedback: { name: string; feedback: string }) => void;
+}
+
+const FeedbackForm: React.FC
+
