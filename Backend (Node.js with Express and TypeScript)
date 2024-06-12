@@ -1,0 +1,13 @@
+Project Structure:
+src
+app.module.ts
+app.controller.ts
+app.service.ts
+feedback
+feedback.entity.ts
+feedback.repository.ts
+feedback.controller.ts
+feedback.service.ts
+main.ts
+package.json
+tsconfig.json
