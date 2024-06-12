@@ -1,0 +1,127 @@
+app.module.ts:
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { FeedbackModule } from './feedback/feedback.module';
+
+@Module({
+  imports: [FeedbackModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+
+app.controller.ts:
+import { Controller, Get, Post, Body, Ip } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get('feedback')
+  async getFeedback() {
+    return this.appService.getFeedback();
+  }
+
+  @Post('feedback')
+  async submitFeedback(@Body() feedback: { name: string; feedback: string }, @Ip() ip: string) {
+    return this.appService.submitFeedback(feedback, ip);
+  }
+}
+
+app.service.ts:
+import { Injectable } from '@nestjs/common';
+import { FeedbackService } from './feedback/feedback.service';
+
+@Injectable()
+export class AppService {
+  constructor(private readonly feedbackService: FeedbackService) {}
+
+  async getFeedback() {
+    return this.feedbackService.getFeedback();
+  }
+
+  async submitFeedback(feedback: { name: string; feedback: string }, ip: string) {
+    return this.feedbackService.submitFeedback(feedback, ip);
+  }
+}
+
+feedback.entity.ts:
+export class Feedback {
+  id: number;
+  name: string;
+  feedback: string;
+
+  constructor(name: string, feedback: string) {
+    this.name = name;
+    this.feedback = feedback;
+    this.id = Math.random(); // temporary ID for demo purposes
+  }
+}
+
+feedback.repository.ts:
+import { Injectable } from '@nestjs/common';
+import { Feedback } from './feedback.entity';
+
+@Injectable()
+export class FeedbackRepository {
+  private feedbacks: Feedback[] = [];
+
+  async getFeedback() {
+    return this.feedbacks;
+  }
+
+  async submitFeedback(feedback: Feedback) {
+    this.feedbacks.push(feedback);
+  }
+}
+
+feedback.controller.ts:
+import { Controller, Get, Post, Body } from '@nestjs/common';
+import { FeedbackService } from './feedback.service';
+
+@Controller('feedback')
+export class FeedbackController {
+  constructor(private readonly feedbackService: FeedbackService) {}
+
+  @Get()
+  async getFeedback() {
+    return this.feedbackService.getFeedback();
+  }
+
+  @Post()
+  async submitFeedback(@Body() feedback: { name: string; feedback: string }) {
+    return this.feedbackService.submitFeedback(feedback);
+  }
+}
+
+feedback.service.ts:
+import { Injectable } from '@nestjs/common';
+import { FeedbackRepository } from './feedback.repository';
+import { Feedback } from './feedback.entity';
+
+@Injectable()
+export class FeedbackService {
+  constructor(private readonly feedbackRepository: FeedbackRepository) {}
+
+  async getFeedback() {
+    return this.feedbackRepository.getFeedback();
+  }
+
+  async submitFeedback(feedback: { name: string; feedback: string }, ip: string) {
+    const newFeedback = new Feedback(feedback.name, feedback.feedback);
+    this.feedbackRepository.submitFeedback(newFeedback);
+    return newFeedback;
+  }
+}
+
+main.ts:
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+bootstrap();
