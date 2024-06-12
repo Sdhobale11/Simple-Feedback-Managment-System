@@ -1,0 +1,91 @@
+FeedbackForm.tsx:
+import React, { useState } from 'eact';
+import axios from 'axios';
+
+interface FeedbackFormProps {
+  onSubmit: (feedback: { name: string; feedback: string }) => void;
+}
+
+const FeedbackForm: React.FC<FeedbackFormProps> = ({ onSubmit }) => {
+  const [name, setName] = useState('');
+  const [feedback, setFeedback] = useState('');
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit({ name, feedback });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label>
+        Name:
+        <input type="text" value={name} onChange={(event) => setName(event.target.value)} />
+      </label>
+      <label>
+        Feedback:
+        <textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} />
+      </label>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default FeedbackForm;
+
+FeedbackList.tsx:
+import React, { useState, useEffect } from 'eact';
+import axios from 'axios';
+
+interface FeedbackListProps {
+  feedbacks: { name: string; feedback: string }[];
+}
+
+const FeedbackList: React.FC<FeedbackListProps> = ({ feedbacks }) => {
+  const [feedbacks, setFeedbacks] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3000/feedback')
+     .then(response => {
+        setFeedbacks(response.data);
+      })
+     .catch(error => {
+        console.error(error);
+      });
+  }, []);
+
+  return (
+    <ul>
+      {feedbacks.map((feedback, index) => (
+        <li key={index}>
+          {feedback.name}: {feedback.feedback}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+export default FeedbackList;
+
+api.ts:
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3000',
+});
+
+export default api;
+
+index.tsx:
+import React from 'eact';
+import ReactDOM from 'eact-dom';
+import App from './App';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+
+
